@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
+# Rosenblat's perceptron
 class Perceptron:
 
     def __init__(self, eta=0.10, epochs=50, is_verbose=False):
@@ -45,7 +46,49 @@ class Perceptron:
             if(self.is_verbose):
                 print("Epoch: {}, weights: {}, number of errors: {}".format(e, self.w, num_errors))
 
-X = np.array([
+# ADALINE perceptron
+class Adaline:
+
+    def __init__(self, eta=0.10, epochs=50, is_verbose=False):
+
+        self.eta = eta
+        self.epochs = epochs
+        self.is_verbose = is_verbose
+
+    def predict(self, x):
+
+        ones = np.ones((x.shape[0], 1))
+        x_1 = np.append(x.copy(), ones, axis=1)
+        return np.where(self.get_activation(x_1) > 0, 1, -1)
+
+    def get_activation(self, x):
+        activation = np.dot(x, self.w)
+        return activation
+
+    def fit(self, X, y):
+
+        self.list_of_errors = []
+
+        ones = np.ones((X.shape[0], 1))
+        X_1 = np.append(X.copy(), ones, axis=1)
+
+        self.w = np.random.rand(X_1.shape[1])
+
+        for e in range(self.epochs):
+
+            error = 0
+
+            activation = self.get_activation(X_1)
+            delta_w = self.eta * np.dot((y - activation), X_1)
+            self.w += delta_w
+
+            error = np.square(y - activation).sum()/2.0
+            self.list_of_errors.append(error)
+
+            if (self.is_verbose):
+                print("Epoch: {}, weights: {}, number of errors: {}".format(e, self.w, error))
+
+X_a = np.array([
     [2, 4, 20],  # 2*2 - 4*4 + 20 =   8 > 0
     [4, 3, -10],  # 2*4 - 4*3 - 10 = -14 < 0
     [5, 6, 13],  # 2*5 - 4*6 + 13 =  -1 < 0
@@ -53,15 +96,16 @@ X = np.array([
     [3, 4, 5],  # 2*3 - 4*4 + 5 =   -5 < 0
 ])
 
-y = np.array([1, -1, -1, 1, -1])
+y_a = np.array([1, -1, -1, 1, -1])
 
+print('Rosenblatts perceptor \n\n')
 perceptron = Perceptron(eta=0.1, epochs=100, is_verbose=True)
-perceptron.fit(X, y)
+perceptron.fit(X_a, y_a)
 
 print(perceptron.predict(np.array([[1, 2, 3]])))  # 2*1 - 4*2 + 1 = -3 < 0
 print(perceptron.predict(np.array([[2, 2, 8]])))  # 2*2 - 4*2 + 8 =  4 > 0
 print(perceptron.predict(np.array([[3, 3, 3]])))  # 2*3 - 4*3 + 3 = -3 <
-plt.scatter(range(perceptron.epochs), perceptron.list_of_errors)
+plt.scatter(range(perceptron.epochs), perceptron.list_of_errors, c='y')
 plt.show()
 
 irys = pd.read_csv('../../data/iris.data', header=None)
@@ -78,5 +122,23 @@ irys_perceptron.fit(X_train, y_train)
 y_pred = irys_perceptron.predict(X_test)
 print(list(zip(y_pred, y_test)))
 
-plt.scatter(range(irys_perceptron.epochs), irys_perceptron.list_of_errors)
+plt.scatter(range(irys_perceptron.epochs), irys_perceptron.list_of_errors, c='b')
+plt.show()
+
+print('ADALINE \n\n')
+
+print('array data\n')
+adaline = Adaline(0.0001, 100, True)
+adaline.fit(X_a, y_a)
+print(adaline.predict(np.array([[1, 2, 3]])))  # 2*1 - 4*2 + 1 = -3 < 0
+print(adaline.predict(np.array([[2, 2, 8]])))  # 2*2 - 4*2 + 8 =  4 > 0
+print(adaline.predict(np.array([[3, 3, 3]])))  # 2*3 - 4*3 + 3 = -3 <
+plt.scatter(range(adaline.epochs), adaline.list_of_errors, c='r')
+plt.show()
+
+# ADALINE irys data
+adaline.fit(X_train, y_train)
+y_pred = adaline.predict(X_test)
+print(list(zip(y_pred, y_test)))
+plt.scatter(range(adaline.epochs), adaline.list_of_errors, c='g')
 plt.show()
