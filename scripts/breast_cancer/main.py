@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import Perceptron
 
-class Perceptron:
+class Perceptron_:
 
     def __init__(self, eta=0.10, epochs=50, is_verbose=False):
 
@@ -51,7 +52,7 @@ X = diag[['area_mean', 'area_se', 'texture_mean', 'concavity_worst', 'concavity_
 y = diag['diagnosis']
 y = y.apply(lambda x: 1 if x=='M' else -1)
 
-# perceptron = Perceptron(0.0000000001, 100, True)
+# perceptron = Perceptron_(0.0000000001, 100, True)
 # perceptron.fit(X, y)
 #
 # plt.scatter(range(perceptron.epochs), perceptron.list_of_errors)
@@ -60,7 +61,7 @@ y = y.apply(lambda x: 1 if x=='M' else -1)
 scaler = StandardScaler()
 scaler.fit(X)
 X = scaler.transform(X)
-perceptron = Perceptron(0.001, 100, True)
+perceptron = Perceptron_(0.001, 100, True)
 perceptron.fit(X, y)
 
 plt.scatter(range(perceptron.epochs), perceptron.list_of_errors)
@@ -75,4 +76,14 @@ total = y_test.count()
 
 accuracy = good / total * 100
 
-print('Accuracy: {} %'.format(accuracy))
+print('My perceptron accuracy: {} %'.format(accuracy))
+
+# testing perceptron from scikit-learn
+scikit_perceptron = Perceptron(max_iter=100, eta0=0.01)
+scikit_perceptron.fit(X_train, y_train)
+y_pred_sc = scikit_perceptron.predict(X_test)
+good_sc = y_test[y_test == y_pred_sc].count()
+accuracy_sc = good_sc / total * 100
+
+print('Scikit-learn perceptron accuracy: {} %'.format(accuracy_sc))
+
